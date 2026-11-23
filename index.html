@@ -33,26 +33,37 @@ function leerClave() {
   return k;
 }
 var K = leerClave();
+function pinta(html) {
+  var doc = new DOMParser().parseFromString(html, 'text/html');
+  doc.querySelectorAll('style').forEach(function (s) { document.head.appendChild(s); });
+  var sc = doc.querySelector('script');
+  var codigo = sc.textContent;
+  sc.remove();
+  document.body.innerHTML = doc.body.innerHTML;
+  window.__API = API;
+  window.__K = K;
+  (0, eval)(codigo);
+}
+var guardada = '';
+try { guardada = localStorage.getItem('zc_ui') || ''; } catch (e) {}
+// 1) Si el diseno ya esta guardado en el movil, se ve al instante
+if (guardada) pinta(guardada);
+// 2) Se pide el diseno al Apps Script; si ha cambiado, se guarda para la proxima vez
 fetch(API + '?api=ui&k=' + encodeURIComponent(K))
   .then(function (r) { return r.json(); })
   .then(function (d) {
     if (d.error) {
-      try { localStorage.removeItem('zc_k'); } catch (e) {}
-      document.getElementById('msg').textContent = 'Clave incorrecta. Cierra y vuelve a abrir la app para escribirla de nuevo.';
+      try { localStorage.removeItem('zc_k'); localStorage.removeItem('zc_ui'); } catch (e) {}
+      document.body.innerHTML = '<div id="boot">Clave incorrecta. Cierra y vuelve a abrir la app para escribirla de nuevo.</div>';
       return;
     }
-    var doc = new DOMParser().parseFromString(d.r, 'text/html');
-    doc.querySelectorAll('style').forEach(function (s) { document.head.appendChild(s); });
-    var sc = doc.querySelector('script');
-    var codigo = sc.textContent;
-    sc.remove();
-    document.body.innerHTML = doc.body.innerHTML;
-    window.__API = API;
-    window.__K = K;
-    (0, eval)(codigo);
+    if (d.r !== guardada) {
+      try { localStorage.setItem('zc_ui', d.r); } catch (e) {}
+      if (!guardada) pinta(d.r);
+    }
   })
   .catch(function (e) {
-    document.getElementById('msg').textContent = 'Sin conexion con la app: ' + e.message;
+    if (!guardada) document.getElementById('msg').textContent = 'Sin conexion con la app: ' + e.message;
   });
 </script>
 </body>

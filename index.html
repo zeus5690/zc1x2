@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ZC 1X2">
+<meta name="theme-color" content="#07090d">
+<title>ZC 1X2</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/d/1SK8eMO-IpSPaZJ1iDjADjfqMgLhdqKwE=s180">
+<link rel="icon" href="https://lh3.googleusercontent.com/d/1SK8eMO-IpSPaZJ1iDjADjfqMgLhdqKwE=s64">
+<style>
+html,body{margin:0;background:#07090d;color:#e9eef5;font-family:-apple-system,BlinkMacSystemFont,Roboto,sans-serif}
+#boot{padding:120px 24px;text-align:center;color:#8b98aa}
+#boot img{width:96px;height:96px;border-radius:22px;display:block;margin:0 auto 18px}
+</style>
+</head>
+<body>
+<div id="boot"><img src="https://lh3.googleusercontent.com/d/1SK8eMO-IpSPaZJ1iDjADjfqMgLhdqKwE=s192" alt=""><div id="msg">Cargando...</div></div>
+<script>
+// ZC 1X2: la pantalla y los datos los sirve Apps Script; aqui solo se carga y se guarda la clave en este movil.
+var API = 'https://script.google.com/macros/s/AKfycby6KI7ey0dJAMZ3ESFAR4IDcS8LJMxipO8jLkz3zf1xsEjTAnP77wAnLJ0n7f_0neXy/exec';
+function leerClave() {
+  var k = '';
+  try { k = localStorage.getItem('zc_k') || ''; } catch (e) {}
+  if (!k) {
+    k = (prompt('Clave de la app ZC 1X2') || '').trim();
+    try { localStorage.setItem('zc_k', k); } catch (e) {}
+  }
+  return k;
+}
+var K = leerClave();
+fetch(API + '?api=ui&k=' + encodeURIComponent(K))
+  .then(function (r) { return r.json(); })
+  .then(function (d) {
+    if (d.error) {
+      try { localStorage.removeItem('zc_k'); } catch (e) {}
+      document.getElementById('msg').textContent = 'Clave incorrecta. Cierra y vuelve a abrir la app para escribirla de nuevo.';
+      return;
+    }
+    var doc = new DOMParser().parseFromString(d.r, 'text/html');
+    doc.querySelectorAll('style').forEach(function (s) { document.head.appendChild(s); });
+    var sc = doc.querySelector('script');
+    var codigo = sc.textContent;
+    sc.remove();
+    document.body.innerHTML = doc.body.innerHTML;
+    window.__API = API;
+    window.__K = K;
+    (0, eval)(codigo);
+  })
+  .catch(function (e) {
+    document.getElementById('msg').textContent = 'Sin conexion con la app: ' + e.message;
+  });
+</script>
+</body>
+</html>

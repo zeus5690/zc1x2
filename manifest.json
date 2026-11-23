@@ -1,0 +1,13 @@
+{
+  "name": "ZC 1X2",
+  "short_name": "ZC 1X2",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#07090d",
+  "theme_color": "#07090d",
+  "icons": [
+    { "src": "https://lh3.googleusercontent.com/d/1SK8eMO-IpSPaZJ1iDjADjfqMgLhdqKwE=s192", "sizes": "192x192", "type": "image/png" },
+    { "src": "https://lh3.googleusercontent.com/d/1SK8eMO-IpSPaZJ1iDjADjfqMgLhdqKwE=s512", "sizes": "512x512", "type": "image/png" }
+  ]
+}

@@ -48,7 +48,7 @@ var guardada = '';
 try { guardada = localStorage.getItem('zc_ui') || ''; } catch (e) {}
 // 1) Si el diseno ya esta guardado en el movil, se ve al instante
 if (guardada) pinta(guardada);
-// 2) Se pide el diseno al Apps Script; si ha cambiado, se guarda para la proxima vez
+// 2) Se pide el diseno al Apps Script; si ha cambiado, se guarda y se recarga una vez
 fetch(API + '?api=ui&k=' + encodeURIComponent(K))
   .then(function (r) { return r.json(); })
   .then(function (d) {
@@ -58,8 +58,10 @@ fetch(API + '?api=ui&k=' + encodeURIComponent(K))
       return;
     }
     if (d.r !== guardada) {
-      try { localStorage.setItem('zc_ui', d.r); } catch (e) {}
+      var ok = false;
+      try { localStorage.setItem('zc_ui', d.r); ok = localStorage.getItem('zc_ui') === d.r; } catch (e) {}
       if (!guardada) pinta(d.r);
+      else if (ok) location.reload(); // diseno nuevo: se aplica al momento, sin tener que cerrar la app
     }
   })
   .catch(function (e) {
